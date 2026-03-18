@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royal Furniture</title>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+  :root {
+    --text-orange: #ff8c00;
+    --text-white: #ffffff;
+    --glow-green: rgba(50, 120, 80, 0.5);
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  
+  /* Global Background - Dark Furniture Theme */
+  body { 
+    background: url('https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed; 
+    background-size: cover;
+    background-color: #050505;
+    color: var(--text-white); 
+    overflow-x: hidden; 
+  }
+
+  /* EXACT Glass Effect from Photos */
+  .glass {
+    background: rgba(255, 255, 255, 0.05); /* Very subtle light tint for the frosted look */
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Soft white border */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
+  
+  /* View Management (Single Page App) */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ================= MAIN VIEW STYLES ================= */
+  
+  /* Announcement Bar */
+  .announcement-bar {
+    position: fixed; top: 0; left: 0; width: 100%; height: 40px;
+    display: flex; align-items: center; overflow: hidden; z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .announcement-content {
+    white-space: nowrap; color: var(--text-orange); font-weight: bold;
+    animation: scrollText 15s linear infinite;
+  }
+  @keyframes scrollText {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Header */
+  header {
+    position: sticky; top: 40px; width: 100%; z-index: 999;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 50px; transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .logo { color: var(--text-orange); font-size: 24px; font-weight: bold; text-decoration: none; text-shadow: 0 0 10px var(--glow-green); }
+  nav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  nav a { 
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    padding: 10px 20px;
+    color: var(--text-orange); 
+    text-decoration: none; 
+    font-weight: 500; 
+    transition: all 0.3s ease; 
+    cursor: pointer; 
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  nav a i { font-size: 1.2rem; color: var(--text-orange); }
+  nav a:hover, nav a.active { 
+    background: rgba(255, 255, 255, 0.25); 
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+  nav a:active { 
+    transform: scale(0.95); 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    transition: all 0.1s;
+  }
+  
+  /* Hero Section */
+  .hero {
+    height: 100vh; display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .hero-card {
+    position: relative; padding: 50px; border-radius: 24px; text-align: center; max-width: 600px;
+  }
+  .typing-text { font-size: 2.5rem; color: var(--text-orange); font-weight: bold; min-height: 60px; text-shadow: 0 0 15px var(--glow-green); }
+  .typing-cursor { display: inline-block; width: 3px; height: 2.5rem; background-color: var(--text-orange); animation: blink 0.7s infinite; vertical-align: bottom; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  
+  /* Sections */
+  section { padding: 80px 50px; }
+  .section-title { color: var(--text-orange); font-size: 2rem; margin-bottom: 40px; text-align: center; text-shadow: 0 0 10px var(--glow-green); }
+  
+  /* Grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; }
+  
+  /* Cards */
+  .card { border-radius: 20px; overflow: hidden; transition: transform 0.3s; cursor: pointer; }
+  .card:hover { transform: translateY(-10px); }
+  .card img { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .card-body { padding: 20px; }
+  .card-title { color: var(--text-orange); font-size: 1.2rem; margin-bottom: 10px; }
+  .card-price { color: var(--text-white); font-weight: bold; }
+  
+  /* Footer */
+  footer { padding: 40px 50px; text-align: center; margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .social-links { margin-bottom: 20px; }
+  .social-links a { color: var(--text-orange); margin: 0 10px; text-decoration: none; font-size: 1.2rem; transition: text-shadow 0.3s; }
+  .social-links a:hover { text-shadow: 0 0 10px var(--glow-green); }
+  
+  /* Buttons */
+  .btn {
+    background: rgba(255, 255, 255, 0.15); color: var(--text-white); border: 1px solid rgba(255,255,255,0.3);
+    padding: 12px 24px; border-radius: 30px; cursor: pointer; font-weight: 500; 
+    transition: all 0.3s ease;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn i { color: var(--text-orange); }
+  .btn:hover { 
+    background: rgba(255, 255, 255, 0.25); color: var(--text-white); 
+    border-color: rgba(255, 255, 255, 0.5); 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  }
+  .btn:active { 
+    transform: scale(0.95); 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    transition: all 0.1s;
+  }
+
+  /* ================= LOGIN VIEW STYLES ================= */
+  .login-wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100vw; }
+  .login-container { padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; }
+  .login-container h2 { color: var(--text-orange); margin-bottom: 30px; }
+  
+  .form-group { margin-bottom: 20px; text-align: left; }
+  label { display: block; margin-bottom: 8px; color: #eee; font-weight: 500; }
+  input, textarea, select { 
+    width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0,0,0,0.2); color: white; outline: none; transition: border 0.3s;
+  }
+  input:focus, textarea:focus { border-color: var(--text-orange); background: rgba(0,0,0,0.4); }
+  
+  .back-link { display: inline-block; margin-top: 20px; color: var(--text-white); text-decoration: none; cursor: pointer; }
+  .back-link:hover { color: var(--text-orange); }
+
+  /* Role Toggle Buttons */
+  .role-btn {
+    flex: 1; padding: 12px; border: none; background: transparent; color: #aaa;
+    border-radius: 25px; cursor: pointer; font-weight: 500; 
+    display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .role-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .role-btn:active { 
+    transform: scale(0.95); 
+    transition: all 0.1s;
+  }
+  .role-btn.active {
+    background: var(--text-orange); color: #000; 
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+  }
+
+  /* ================= ADMIN VIEW STYLES ================= */
+  .admin-wrapper { display: flex; min-height: 100vh; width: 100vw; }
+  .sidebar { width: 250px; padding: 20px; border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
+  .sidebar h2 { color: var(--text-orange); margin-bottom: 30px; }
+  .nav-btn {
+    background: transparent; color: var(--text-white); border: 1px solid transparent; padding: 15px; text-align: left;
+    cursor: pointer; border-radius: 12px; margin-bottom: 10px; font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-btn i { color: var(--text-orange); margin-right: 8px; }
+  .nav-btn:hover, .nav-btn.active { 
+    background: rgba(255,255,255,0.1); color: var(--text-orange); border: 1px solid rgba(255,255,255,0.2); 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  .nav-btn:active { 
+    transform: scale(0.95); 
+    transition: all 0.1s;
+  }
+  
+  .main-content { flex: 1; padding: 30px; overflow-y: auto; height: 100vh; }
+  .admin-section { display: none; }
+  .admin-section.active { display: block; animation: fadeIn 0.3s; }
+  .main-content h3 { color: var(--text-orange); margin-bottom: 20px; font-size: 1.5rem; }
+  
+  /* Custom Dropdown */
+  .custom-select-wrapper { position: relative; user-select: none; }
+  .custom-select {
+    width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.2); color: white; cursor: pointer;
+  }
+  .custom-options {
+    position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; border-radius: 12px;
+    display: none; z-index: 10; max-height: 200px; overflow-y: auto;
+  }
+  .custom-options.open { display: block; }
+  .custom-option { padding: 12px; cursor: pointer; transition: background 0.3s; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .custom-option:hover { background: rgba(255,255,255,0.1); color: var(--text-orange); }
+
+  .btn-danger { background: rgba(220, 53, 69, 0.2); color: #ff6b6b; border-color: rgba(220, 53, 69, 0.5); }
+  .btn-danger:hover { background: #dc3545; color: white; border-color: #dc3545; }
+  
+  /* Image Preview */
+  .custom-file-upload { position: relative; display: block; width: 100%; margin-bottom: 10px; }
+  .upload-label {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 30px; border: 2px dashed rgba(255, 140, 0, 0.4); border-radius: 16px;
+    background: rgba(0, 0, 0, 0.2); color: #aaa; cursor: pointer; transition: all 0.3s ease;
+  }
+  .upload-label:hover {
+    background: rgba(255, 140, 0, 0.1); border-color: var(--text-orange); color: var(--text-orange);
+  }
+  .upload-label i { font-size: 2.5rem; margin-bottom: 10px; color: var(--text-orange); }
+  
+  .image-preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .image-preview { position: relative; width: 100px; height: 100px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+  .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .remove-img {
+    position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white;
+    border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; width: 24px; height: 24px; cursor: pointer; 
+    display: flex; align-items: center; justify-content: center; font-weight: bold;
+  }
+  .remove-img:hover { background: #dc3545; }
+  
+  /* Lists */
+  .list-item {
+    display: flex; justify-content: space-between; align-items: center; padding: 15px;
+    margin-bottom: 15px; border-radius: 16px;
+  }
+  .list-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px; }
+  .list-item-info { display: flex; align-items: center; }
+  .list-actions button { margin-left: 10px; }
+
+  /* Ripple Effect */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    background-color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+  }
+  @keyframes ripple-animation {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= MAIN WEBSITE VIEW ================= -->
+<div id="main-view" class="view active">
+  <div class="announcement-bar glass" id="announcementBar">
+    <div class="announcement-content" id="announcementText">Welcome to Royal Furniture - Premium Glass UI</div>
+  </div>
+
+  <header class="glass">
+    <a href="#" class="logo">Royal Furniture</a>
+    <nav>
+      <a onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})" class="active"><i class="ph ph-house"></i> Home</a>
+      <a onclick="document.getElementById('about-us').scrollIntoView({behavior:'smooth'})"><i class="ph ph-info"></i> About</a>
+      <a onclick="document.getElementById('categories').scrollIntoView({behavior:'smooth'})"><i class="ph ph-squares-four"></i> Categories</a>
+      <a onclick="document.getElementById('new-arrivals').scrollIntoView({behavior:'smooth'})"><i class="ph ph-sparkle"></i> New Arrivals</a>
+      <a onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})"><i class="ph ph-armchair"></i> Products</a>
+      <a onclick="document.getElementById('blogs').scrollIntoView({behavior:'smooth'})"><i class="ph ph-article"></i> Blog</a>
+      <a onclick="openCart()" style="cursor: pointer;"><i class="ph ph-shopping-cart"></i> Cart <span id="cartCount" style="background: var(--text-orange); color: #000; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; margin-left: 5px; font-weight: bold;">0</span></a>
+      <a onclick="switchView('login-view')"><i class="ph ph-user"></i> Login</a>
+    </nav>
+  </header>
+
+  <div class="hero" id="home">
+    <div class="hero-card glass">
+      <div class="typing-text" id="typingText"></div><span class="typing-cursor"></span>
+      <p style="margin-top: 20px; color: var(--text-orange); font-size: 1.1rem;"><span id="typingSubText"></span><span class="typing-cursor"></span></p>
+    </div>
+  </div>
+
+  <section id="about-us">
+    <h2 class="section-title">About Us</h2>
+    <div class="glass" style="padding: 40px; border-radius: 20px; text-align: center; max-width: 800px; margin: 0 auto;">
+      <p style="font-size: 1.2rem; line-height: 1.8; color: #ddd;">Welcome to Royal Furniture, where elegance meets comfort. We specialize in crafting premium, modern furniture pieces that transform your living spaces into luxurious sanctuaries. With a commitment to quality materials and timeless design, our collections are curated to bring both style and functionality to your home.</p>
+    </div>
+  </section>
+
+  <section id="categories">
+    <h2 class="section-title">Our Categories</h2>
+    <div class="grid" id="categoryGrid">
+      <!-- Categories will be loaded here -->
+    </div>
+  </section>
+
+  <section id="new-arrivals">
+    <h2 class="section-title">New Arrivals</h2>
+    <div class="grid" id="newArrivalsGrid">
+      <!-- New Arrivals will be loaded here -->
+    </div>
+  </section>
+
+  <section id="products">
+    <h2 class="section-title">Featured Products</h2>
+    <div class="grid" id="productGrid">
+      <!-- Products will be loaded here -->
+    </div>
+  </section>
+
+  <section id="blogs">
+    <h2 class="section-title">Our Blog</h2>
+    <div class="grid" id="blogGrid">
+      <!-- Blogs will be loaded here -->
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2 class="section-title">Inquiry / Contact Us</h2>
+    <div class="glass" style="padding: 40px; border-radius: 24px; max-width: 600px; margin: 0 auto;">
+      <form id="inquiryForm">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="name" required placeholder="Your Name">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" required placeholder="Your Email">
+        </div>
+        <div class="form-group">
+          <label>Message / Inquiry</label>
+          <textarea name="message" rows="4" required placeholder="How can we help you?"></textarea>
+        </div>
+        <button type="submit" class="btn" style="width: 100%;">Send Inquiry</button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="glass" style="margin-top: 80px; padding: 60px 50px 20px; text-align: left; border-radius: 40px 40px 0 0;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;">
+      <div>
+        <h3 style="color: var(--text-orange); margin-bottom: 20px; font-size: 1.5rem; text-shadow: 0 0 10px var(--glow-green);">Royal Furniture</h3>
+        <p style="color: #aaa; line-height: 1.6; margin-bottom: 20px;">Elevating spaces with premium glassmorphism furniture. Designed for the modern aesthetic, built for eternity.</p>
+        <div class="social-links" style="display: flex; gap: 15px;">
+          <a href="#" style="font-size: 1.5rem;"><i class="ph ph-youtube-logo"></i></a>
+          <a href="#" style="font-size: 1.5rem;"><i class="ph ph-pinterest-logo"></i></a>
+          <a href="#" style="font-size: 1.5rem;"><i class="ph ph-instagram-logo"></i></a>
+          <a href="#" style="font-size: 1.5rem;"><i class="ph ph-facebook-logo"></i></a>
+          <a href="#" style="font-size: 1.5rem;"><i class="ph ph-whatsapp-logo"></i></a>
+          <a href="#" style="font-size: 1.5rem;"><i class="ph ph-x-logo"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4 style="color: var(--text-white); margin-bottom: 20px;">Explore</h4>
+        <ul style="list-style: none; padding: 0; color: #aaa; line-height: 2;">
+          <li><a href="#" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})" style="color: #aaa; text-decoration: none; transition: color 0.3s;">Home</a></li>
+          <li><a href="#" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})" style="color: #aaa; text-decoration: none; transition: color 0.3s;">Shop All</a></li>
+          <li><a href="#" onclick="document.getElementById('new-arrivals').scrollIntoView({behavior:'smooth'})" style="color: #aaa; text-decoration: none; transition: color 0.3s;">New Arrivals</a></li>
+          <li><a href="#" onclick="document.getElementById('blogs').scrollIntoView({behavior:'smooth'})" style="color: #aaa; text-decoration: none; transition: color 0.3s;">Blog</a></li>
+          <li><a href="#" onclick="document.getElementById('about-us').scrollIntoView({behavior:'smooth'})" style="color: #aaa; text-decoration: none; transition: color 0.3s;">About Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color: var(--text-white); margin-bottom: 20px;">Support</h4>
+        <ul style="list-style: none; padding: 0; color: #aaa; line-height: 2;">
+          <li><a href="#" style="color: #aaa; text-decoration: none; transition: color 0.3s;">FAQ</a></li>
+          <li><a href="#" style="color: #aaa; text-decoration: none; transition: color 0.3s;">Shipping & Returns</a></li>
+          <li><a href="#" style="color: #aaa; text-decoration: none; transition: color 0.3s;">Track Order</a></li>
+          <li><a href="#contact" style="color: #aaa; text-decoration: none; transition: color 0.3s;">Contact Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color: var(--text-white); margin-bottom: 20px;">Newsletter</h4>
+        <p style="color: #aaa; margin-bottom: 15px;">Subscribe for exclusive offers and new arrivals.</p>
+        <form style="display: flex; gap: 10px; flex-direction: column;" onsubmit="event.preventDefault(); alert('Subscribed successfully!');">
+          <input type="email" required placeholder="Your email address" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; color: white;">
+          <button type="submit" class="btn" style="padding: 12px; width: 100%;">Subscribe</button>
+        </form>
+      </div>
+    </div>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; color: #aaa; font-size: 0.9rem;">
+      <p>&copy; 2026 Royal Furniture. All rights reserved.</p>
+      <div style="display: flex; gap: 20px;">
+        <a href="#" style="color: #aaa; text-decoration: none; transition: color 0.3s;">Privacy Policy</a>
+        <a href="#" style="color: #aaa; text-decoration: none; transition: color 0.3s;">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ================= LOGIN VIEW ================= -->
+<div id="login-view" class="view">
+  <div class="login-wrapper">
+    <div class="login-container glass" style="padding: 40px; border-radius: 24px; max-width: 450px; width: 100%; text-align: center;">
+      <h2 style="color: var(--text-white); margin-bottom: 30px; font-size: 2rem;">Welcome <span style="color: var(--text-orange);">Back</span></h2>
+      
+      <!-- Role Toggle -->
+      <div style="display: flex; background: rgba(255,255,255,0.05); border-radius: 30px; padding: 5px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);">
+        <button type="button" id="tab-buyer" class="role-btn active" onclick="setLoginRole('buyer')"><i class="ph ph-user"></i> Buyer</button>
+        <button type="button" id="tab-admin" class="role-btn" onclick="setLoginRole('admin')"><i class="ph ph-shield-check"></i> Admin</button>
+      </div>
+
+      <form id="loginForm">
+        <input type="hidden" id="loginRole" value="buyer">
+        <div class="form-group">
+          <label style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px;">Email / Username</label>
+          <input type="text" id="username" required placeholder="john@example.com" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        </div>
+        <div class="form-group">
+          <label style="display: flex; justify-content: space-between; color: #aaa; font-size: 0.9rem; margin-bottom: 5px;">Password <a href="#" style="color: var(--text-orange); text-decoration: none;">Forgot password?</a></label>
+          <input type="password" id="password" required placeholder="••••••••" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        </div>
+        <button type="submit" class="btn" style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.1rem; background: rgba(255,255,255,0.2); border: none;">Sign In <i class="ph ph-arrow-right"></i></button>
+      </form>
+      <p style="margin-top: 25px; font-size: 0.9rem; color: #aaa;">Don't have an account? <a href="#" style="color: var(--text-orange); text-decoration: none;">Create one</a></p>
+      <a onclick="switchView('main-view')" class="back-link" style="margin-top: 15px; display: inline-block; font-size: 0.9rem;"><i class="ph ph-arrow-left"></i> Back to Home</a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= BUYER VIEW ================= -->
+<div id="buyer-view" class="view">
+  <header class="glass">
+    <a href="#" class="logo">Royal Furniture</a>
+    <nav>
+      <a onclick="switchView('main-view')"><i class="ph ph-house"></i> Home</a>
+      <a onclick="openCart()" style="cursor: pointer;"><i class="ph ph-shopping-cart"></i> Cart <span id="cartCountBuyer" style="background: var(--text-orange); color: #000; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; margin-left: 5px; font-weight: bold;">0</span></a>
+      <a onclick="switchView('login-view')"><i class="ph ph-sign-out"></i> Logout</a>
+    </nav>
+  </header>
+  <div style="padding: 50px; max-width: 1000px; margin: 0 auto; min-height: 80vh;">
+    <h2 style="color: var(--text-orange); margin-bottom: 30px; font-size: 2rem;">My Orders</h2>
+    <div class="glass" style="padding: 30px; border-radius: 24px;">
+      <div class="list-item glass" style="background: rgba(255,255,255,0.05); margin-bottom: 20px;">
+        <div class="list-item-info">
+          <div>
+            <strong style="font-size: 1.2rem; color: var(--text-white);">Order #ORD-20260317</strong><br>
+            <small style="color:#aaa; display: block; margin-top: 5px;">Placed on: March 15, 2026</small>
+            <small style="color:#ddd; display: block; margin-top: 5px;">1x Premium Oak Bed, 2x Nightstands</small>
+          </div>
+        </div>
+        <div class="list-actions">
+          <span style="background: rgba(255, 140, 0, 0.2); color: var(--text-orange); padding: 8px 20px; border-radius: 30px; font-size: 0.9rem; border: 1px solid var(--text-orange); font-weight: bold;">Shipped</span>
+        </div>
+      </div>
+      <div class="list-item glass" style="background: rgba(255,255,255,0.05);">
+        <div class="list-item-info">
+          <div>
+            <strong style="font-size: 1.2rem; color: var(--text-white);">Order #ORD-20260210</strong><br>
+            <small style="color:#aaa; display: block; margin-top: 5px;">Placed on: Feb 10, 2026</small>
+            <small style="color:#ddd; display: block; margin-top: 5px;">1x Glass Coffee Table</small>
+          </div>
+        </div>
+        <div class="list-actions">
+          <span style="background: rgba(50, 205, 50, 0.2); color: #32cd32; padding: 8px 20px; border-radius: 30px; font-size: 0.9rem; border: 1px solid #32cd32; font-weight: bold;">Delivered</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ADMIN VIEW ================= -->
+<div id="admin-view" class="view">
+  <div class="admin-wrapper">
+    <div class="sidebar glass" style="border-radius: 0; border-right: 1px solid rgba(255,255,255,0.2);">
+      <h2>Admin Panel</h2>
+      <button class="nav-btn active" onclick="showAdminSection('admin-dashboard')"><i class="ph ph-chart-bar"></i> Dashboard</button>
+      <button class="nav-btn" onclick="showAdminSection('announcement')"><i class="ph ph-megaphone"></i> Announcement</button>
+      <button class="nav-btn" onclick="showAdminSection('admin-categories')"><i class="ph ph-squares-four"></i> Categories</button>
+      <button class="nav-btn" onclick="showAdminSection('admin-products')"><i class="ph ph-armchair"></i> Products</button>
+      <button class="nav-btn" onclick="showAdminSection('admin-blogs')"><i class="ph ph-article"></i> Blogs</button>
+      <a onclick="switchView('main-view')" class="nav-btn" style="text-decoration: none; margin-top: auto; text-align: center;"><i class="ph ph-sign-out"></i> Logout</a>
+    </div>
+
+    <div class="main-content">
+      
+      <!-- Dashboard Section -->
+      <div id="admin-dashboard" class="admin-section active">
+        <h3>Dashboard & Analytics</h3>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 40px;">
+          <div class="glass" style="padding: 20px; border-radius: 16px; text-align: center;">
+            <h4 style="color: #aaa; margin-bottom: 10px;">Total Revenue</h4>
+            <p style="font-size: 2rem; color: var(--text-orange); font-weight: bold;">$24,500</p>
+          </div>
+          <div class="glass" style="padding: 20px; border-radius: 16px; text-align: center;">
+            <h4 style="color: #aaa; margin-bottom: 10px;">Active Orders</h4>
+            <p style="font-size: 2rem; color: var(--text-white); font-weight: bold;">18</p>
+          </div>
+          <div class="glass" style="padding: 20px; border-radius: 16px; text-align: center;">
+            <h4 style="color: #aaa; margin-bottom: 10px;">Total Products</h4>
+            <p style="font-size: 2rem; color: var(--text-white); font-weight: bold;" id="stat-products">0</p>
+          </div>
+          <div class="glass" style="padding: 20px; border-radius: 16px; text-align: center;">
+            <h4 style="color: #aaa; margin-bottom: 10px;">Total Inquiries</h4>
+            <p style="font-size: 2rem; color: var(--text-white); font-weight: bold;">42</p>
+          </div>
+        </div>
+        
+        <div class="glass" style="padding: 30px; border-radius: 24px;">
+          <h4 style="color: var(--text-orange); margin-bottom: 20px;">Recent Orders</h4>
+          <table style="width: 100%; text-align: left; border-collapse: collapse; color: #ddd;">
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+              <th style="padding: 10px 0;">Order ID</th>
+              <th style="padding: 10px 0;">Customer</th>
+              <th style="padding: 10px 0;">Amount</th>
+              <th style="padding: 10px 0;">Status</th>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <td style="padding: 15px 0;">#ORD-20260317</td>
+              <td>john@example.com</td>
+              <td>$1,250</td>
+              <td><span style="color: var(--text-orange);">Shipped</span></td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+              <td style="padding: 15px 0;">#ORD-20260316</td>
+              <td>sarah.w@mail.com</td>
+              <td>$850</td>
+              <td><span style="color: #32cd32;">Processing</span></td>
+            </tr>
+            <tr>
+              <td style="padding: 15px 0;">#ORD-20260315</td>
+              <td>mike_t@mail.com</td>
+              <td>$3,400</td>
+              <td><span style="color: #aaa;">Delivered</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Announcement Section -->
+      <div id="announcement" class="admin-section">
+        <h3>Manage Announcement</h3>
+        <form id="announcementForm" class="glass" style="padding: 30px; border-radius: 24px;">
+          <div class="form-group">
+            <label>Announcement Text</label>
+            <input type="text" id="announcementInput" required>
+          </div>
+          <button type="submit" class="btn">Save Announcement</button>
+        </form>
+      </div>
+
+      <!-- Categories Section -->
+      <div id="admin-categories" class="admin-section">
+        <h3>Manage Categories</h3>
+        <form id="categoryForm" class="glass" style="padding: 30px; border-radius: 24px; margin-bottom: 30px;">
+          <input type="hidden" id="categoryId">
+          <div class="form-group">
+            <label>Category Name</label>
+            <input type="text" id="categoryName" required>
+          </div>
+          <div class="form-group">
+            <label>Category Image</label>
+            <div class="custom-file-upload">
+              <input type="file" id="categoryImageInput" accept="image/*" hidden>
+              <label for="categoryImageInput" class="upload-label">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Click to upload image</span>
+              </label>
+            </div>
+            <div class="image-preview-container" id="categoryImagePreview"></div>
+          </div>
+          <button type="submit" class="btn" id="categorySubmitBtn">Add Category</button>
+          <button type="button" class="btn btn-danger" id="categoryCancelBtn" style="display:none;" onclick="resetCategoryForm()">Cancel Edit</button>
+        </form>
+        <div id="categoryList"></div>
+      </div>
+
+      <!-- Products Section -->
+      <div id="admin-products" class="admin-section">
+        <h3>Manage Products</h3>
+        <form id="productForm" class="glass" style="padding: 30px; border-radius: 24px; margin-bottom: 30px;">
+          <input type="hidden" id="productId">
+          <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" id="productName" required>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <div class="custom-select-wrapper">
+              <div class="custom-select" id="productCategorySelect">Select Category</div>
+              <div class="custom-options glass" id="productCategoryOptions"></div>
+            </div>
+            <input type="hidden" id="productCategory" required>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="productDescription" rows="3" required></textarea>
+          </div>
+          <div class="form-group" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label>Price ($)</label>
+              <input type="number" id="productPrice" required>
+            </div>
+            <div style="flex: 1;">
+              <label>Old Price ($)</label>
+              <input type="number" id="productOldPrice">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>SEO Title</label>
+            <input type="text" id="productSeoTitle" placeholder="Meta Title for SEO">
+          </div>
+          <div class="form-group">
+            <label>Meta Description</label>
+            <textarea id="productMetaDesc" rows="2" placeholder="Brief description for search engines"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Product Images (Unlimited)</label>
+            <div class="custom-file-upload">
+              <input type="file" id="productImagesInput" accept="image/*" multiple hidden>
+              <label for="productImagesInput" class="upload-label">
+                <i class="fas fa-images"></i>
+                <span>Click to upload images</span>
+              </label>
+            </div>
+            <div class="image-preview-container" id="productImagesPreview"></div>
+          </div>
+          <button type="submit" class="btn" id="productSubmitBtn">Add Product</button>
+          <button type="button" class="btn btn-danger" id="productCancelBtn" style="display:none;" onclick="resetProductForm()">Cancel Edit</button>
+        </form>
+        <div id="productList"></div>
+      </div>
+
+      <!-- Blogs Section -->
+      <div id="admin-blogs" class="admin-section">
+        <h3>Manage Blogs</h3>
+        <form id="blogForm" class="glass" style="padding: 30px; border-radius: 24px;">
+          <input type="hidden" id="blogId">
+          <div class="form-group">
+            <label>Blog Title</label>
+            <input type="text" id="blogTitle" required>
+          </div>
+          <div class="form-group">
+            <label>Content</label>
+            <textarea id="blogContent" rows="5" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Blog Cover Image</label>
+            <div class="custom-file-upload">
+              <input type="file" id="blogImageInput" accept="image/*" hidden>
+              <label for="blogImageInput" class="upload-label">
+                <i class="fas fa-image"></i>
+                <span>Click to upload cover image</span>
+              </label>
+            </div>
+            <div class="image-preview-container" id="blogImagePreview"></div>
+          </div>
+          <button type="submit" class="btn" id="blogSubmitBtn">Add Blog</button>
+          <button type="button" class="btn btn-danger" id="blogCancelBtn" style="display:none;" onclick="resetBlogForm()">Cancel Edit</button>
+        </form>
+        <div id="blogList" style="margin-top: 30px;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= BLOG MODAL ================= -->
+<div id="blogModal" class="modal">
+  <div class="modal-content glass">
+    <span class="close-modal" onclick="closeBlogModal()">&times;</span>
+    <h2 id="modalBlogTitle" style="color: var(--text-orange); margin-bottom: 20px;"></h2>
+    <div id="modalBlogContent" style="line-height: 1.8; color: #ddd; white-space: pre-wrap;"></div>
+  </div>
+</div>
+
+<!-- ================= PRODUCT MODAL ================= -->
+<div id="productModal" class="modal">
+  <div class="modal-content glass" style="max-width: 900px; display: flex; flex-wrap: wrap; gap: 30px;">
+    <span class="close-modal" onclick="closeProductModal()">&times;</span>
+    <div style="flex: 1; min-width: 300px;">
+      <img id="modalProductImage" src="" style="width: 100%; border-radius: 16px; object-fit: cover; max-height: 400px;">
+      <div id="modalProductGallery" style="display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 10px;"></div>
+    </div>
+    <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; justify-content: center;">
+      <h2 id="modalProductName" style="color: var(--text-orange); margin-bottom: 10px; font-size: 2rem;"></h2>
+      <p id="modalProductPrice" style="font-size: 1.5rem; color: var(--text-white); margin-bottom: 20px;"></p>
+      <p id="modalProductDesc" style="color: #ccc; line-height: 1.6; margin-bottom: 30px;"></p>
+      <button id="modalAddToCartBtn" class="btn" style="width: 100%; font-size: 1.1rem; padding: 15px;"><i class="ph ph-shopping-cart"></i> Add to Cart</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CART MODAL ================= -->
+<div id="cartModal" class="modal">
+  <div class="modal-content glass" style="max-width: 500px;">
+    <span class="close-modal" onclick="closeCart()">&times;</span>
+    <h2 style="color: var(--text-orange); margin-bottom: 20px;"><i class="ph ph-shopping-cart"></i> Your Cart</h2>
+    <div id="cartItems" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px; padding-right: 10px;"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-bottom: 20px;">
+      <h3 style="color: var(--text-white);">Total:</h3>
+      <h3 id="cartTotal" style="color: var(--text-orange); font-size: 1.5rem;">$0</h3>
+    </div>
+    <button class="btn" style="width: 100%; font-size: 1.1rem; padding: 15px; background: #25D366; color: #fff; border: none;" onclick="checkoutWhatsApp()"><i class="ph ph-whatsapp-logo"></i> Order via WhatsApp</button>
+  </div>
+</div>
+
+<style>
+  /* Modal Styles */
+  .modal {
+    display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .modal-content {
+    margin: 10% auto; padding: 40px; border-radius: 24px; width: 80%; max-width: 800px; position: relative;
+  }
+  .modal-content.glass {
+    background: rgba(255, 255, 255, 0.08); /* Slightly brighter than normal glass */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+  }
+  .close-modal {
+    color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; top: 20px; right: 30px;
+  }
+  .close-modal:hover, .close-modal:focus { color: var(--text-orange); text-decoration: none; cursor: pointer; }
+</style>
+
+<script>
+  // ================= VIEW SWITCHING (SPA LOGIC) =================
+  function switchView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    
+    if (viewId === 'main-view') {
+      loadData(); // Refresh frontend data when returning to main view
+      window.scrollTo(0, 0);
+    }
+  }
+
+  // ================= TYPING ANIMATION =================
+  const words = ["Royal Furniture", "Modern Design", "Luxury Living"];
+  let i = 0;
+  let timer;
+  function typingEffect() {
+    let word = words[i].split("");
+    var loopTyping = function() {
+      if (word.length > 0) {
+        document.getElementById('typingText').innerHTML += word.shift();
+      } else {
+        setTimeout(deletingEffect, 2000);
+        return false;
+      }
+      timer = setTimeout(loopTyping, 100);
+    };
+    loopTyping();
+  }
+  function deletingEffect() {
+    let word = words[i].split("");
+    var loopDeleting = function() {
+      if (word.length > 0) {
+        word.pop();
+        document.getElementById('typingText').innerHTML = word.join("");
+      } else {
+        if (words.length > (i + 1)) { i++; } else { i = 0; }
+        setTimeout(typingEffect, 500);
+        return false;
+      }
+      timer = setTimeout(loopDeleting, 50);
+    };
+    loopDeleting();
+  }
+  typingEffect();
+
+  const subWords = ["Experience the premium sofa set dining bed home decor"];
+  let subI = 0;
+  function typingSubEffect() {
+    let word = subWords[subI].split("");
+    var loopTyping = function() {
+      if (word.length > 0) {
+        document.getElementById('typingSubText').innerHTML += word.shift();
+      } else {
+        setTimeout(deletingSubEffect, 3000);
+        return false;
+      }
+      setTimeout(loopTyping, 50);
+    };
+    loopTyping();
+  }
+  function deletingSubEffect() {
+    let word = subWords[subI].split("");
+    var loopDeleting = function() {
+      if (word.length > 0) {
+        word.pop();
+        document.getElementById('typingSubText').innerHTML = word.join("");
+      } else {
+        setTimeout(typingSubEffect, 500);
+        return false;
+      }
+      setTimeout(loopDeleting, 25);
+    };
+    loopDeleting();
+  }
+
+  // ================= DATA MANAGEMENT =================
+  let categories = JSON.parse(localStorage.getItem('categories') || '[]');
+  let products = JSON.parse(localStorage.getItem('products') || '[]');
+  let blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+  let currentCatImage = '';
+  let currentProductImages = [];
+  let currentBlogImage = '';
+
+  function loadData() {
+    // Announcement
+    const announcement = localStorage.getItem('announcement') || 'Welcome to Royal Furniture - Premium Glass UI';
+    document.getElementById('announcementText').innerText = announcement;
+    document.getElementById('announcementInput').value = announcement;
+
+    // Categories (Frontend)
+    const categoryGrid = document.getElementById('categoryGrid');
+    categoryGrid.innerHTML = categories.length ? '' : '<p style="text-align:center; width:100%; color:#ccc;">No categories found.</p>';
+    categories.forEach(cat => {
+      categoryGrid.innerHTML += `
+        <div class="card glass">
+          <img src="${cat.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=500&auto=format&fit=crop'}" alt="${cat.name}">
+          <div class="card-body">
+            <h3 class="card-title">${cat.name}</h3>
+          </div>
+        </div>
+      `;
+    });
+
+    // Products & New Arrivals (Frontend)
+    const newArrivalsGrid = document.getElementById('newArrivalsGrid');
+    const productGrid = document.getElementById('productGrid');
+    newArrivalsGrid.innerHTML = '';
+    productGrid.innerHTML = '';
+    
+    if (products.length === 0) {
+      newArrivalsGrid.innerHTML = '<p style="text-align:center; width:100%; color:#ccc;">No new arrivals.</p>';
+      productGrid.innerHTML = '<p style="text-align:center; width:100%; color:#ccc;">No products found.</p>';
+    } else {
+      const sortedProducts = [...products].sort((a, b) => b.id - a.id);
+      const newArrivals = sortedProducts.slice(0, 4);
+      const featured = sortedProducts.slice(4);
+      
+      const renderProd = (prod) => {
+        const img = prod.images && prod.images.length > 0 ? prod.images[0] : 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=500&auto=format&fit=crop';
+        const oldPriceHtml = prod.oldPrice ? `<span style="text-decoration: line-through; color: #888; font-size: 0.9rem; margin-right: 10px;">$${prod.oldPrice}</span>` : '';
+        return `
+          <div class="card glass">
+            <img src="${img}" alt="${prod.name}" onclick="openProductModal(${prod.id})" style="cursor: pointer;">
+            <div class="card-body">
+              <h3 class="card-title" onclick="openProductModal(${prod.id})" style="cursor: pointer;">${prod.name}</h3>
+              <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.description || ''}</p>
+              <p class="card-price">${oldPriceHtml}$${prod.price}</p>
+              <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn" style="flex: 1; padding: 10px; font-size: 0.9rem;" onclick="addToCart(${prod.id}, event)"><i class="ph ph-shopping-cart"></i> Add</button>
+                <button class="btn" style="flex: 1; padding: 10px; font-size: 0.9rem; background: rgba(255,255,255,0.1); color: #fff;" onclick="openProductModal(${prod.id})">Details</button>
+              </div>
+            </div>
+          </div>
+        `;
+      };
+      
+      newArrivalsGrid.innerHTML = newArrivals.map(renderProd).join('');
+      productGrid.innerHTML = featured.length ? featured.map(renderProd).join('') : '<p style="text-align:center; width:100%; color:#ccc;">More products coming soon.</p>';
+    }
+
+    // Blogs (Frontend)
+    const blogGrid = document.getElementById('blogGrid');
+    blogGrid.innerHTML = blogs.length ? '' : '<p style="text-align:center; width:100%; color:#ccc;">No blogs found.</p>';
+    blogs.forEach(blog => {
+      const blogImg = blog.image ? `<img src="${blog.image}" alt="${blog.title}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 15px;">` : '';
+      blogGrid.innerHTML += `
+        <div class="card glass" style="padding: 20px;">
+          ${blogImg}
+          <h3 style="color: var(--text-orange); margin-bottom: 15px;">${blog.title}</h3>
+          <p style="color: #ddd; line-height: 1.6;">${blog.content.substring(0, 150)}${blog.content.length > 150 ? '...' : ''}</p>
+          <button class="btn" style="margin-top: 15px; padding: 5px 15px; font-size: 0.9rem;" onclick="openBlogModal(${blog.id})">Read More</button>
+        </div>
+      `;
+    });
+
+    // Update Admin Dashboard Stats
+    const statProducts = document.getElementById('stat-products');
+    if (statProducts) {
+      statProducts.textContent = products.length;
+    }
+
+    // Admin Lists
+    renderAdminCategories();
+    renderAdminBlogs();
+    renderAdminProducts();
+    updateCategoryDropdown();
+  }
+
+  // Initial Load
+  window.addEventListener('load', () => {
+    loadData();
+    typingSubEffect();
+  });
+
+  // ================= INQUIRY FORM =================
+  document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = 'Sending...';
+    submitBtn.disabled = true;
+
+    const formData = new FormData(this);
+
+    fetch("https://formsubmit.co/ajax/aarishrao39@gmail.com", {
+        method: "POST",
+        headers: { 
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Thank you for your inquiry! We will get back to you soon.');
+        this.reset();
+    })
+    .catch(error => {
+        alert('Oops! There was a problem submitting your form.');
+        console.error(error);
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+  });
+
+  // ================= LOGIN LOGIC =================
+  window.setLoginRole = function(role) {
+    document.getElementById('loginRole').value = role;
+    document.getElementById('tab-buyer').classList.remove('active');
+    document.getElementById('tab-admin').classList.remove('active');
+    document.getElementById('tab-' + role).classList.add('active');
+    
+    if (role === 'admin') {
+      document.getElementById('username').placeholder = 'yashfirao37';
+    } else {
+      document.getElementById('username').placeholder = 'john@example.com';
+    }
+  };
+
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const role = document.getElementById('loginRole').value;
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    
+    if (role === 'admin') {
+      if (user === 'yashfirao37' && pass === 'yashfirao38kare') {
+        switchView('admin-view');
+        document.getElementById('loginForm').reset();
+      } else {
+        alert('Invalid Admin Credentials! Please use yashfirao37 / yashfirao38kare');
+      }
+    } else {
+      // Buyer login
+      if (user && pass) {
+        switchView('buyer-view');
+        document.getElementById('loginForm').reset();
+      } else {
+        alert('Please enter email and password');
+      }
+    }
+  });
+
+  // ================= ADMIN LOGIC =================
+  function showAdminSection(id) {
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar .nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // Announcement Save
+  document.getElementById('announcementForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    localStorage.setItem('announcement', document.getElementById('announcementInput').value);
+    alert('Announcement saved successfully!');
+  });
+
+  // Image Upload Helper (FileReader)
+  function handleImageUpload(input, previewContainer, isMultiple, callback, type) {
+    input.addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      if (!isMultiple) previewContainer.innerHTML = '';
+      
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const base64 = event.target.result;
+          callback(base64);
+          renderPreview(base64, previewContainer, isMultiple, type);
+        };
+        reader.readAsDataURL(file);
+      });
+      input.value = ''; // Reset input
+    });
+  }
+
+  function renderPreview(base64, container, isMultiple, type) {
+    const div = document.createElement('div');
+    div.className = 'image-preview';
+    div.innerHTML = `
+      <img src="${base64}">
+      <button type="button" class="remove-img">×</button>
+    `;
+    div.querySelector('.remove-img').addEventListener('click', function() {
+      div.remove();
+      if (isMultiple) {
+        currentProductImages = currentProductImages.filter(img => img !== base64);
+      } else {
+        if (type === 'blog') currentBlogImage = '';
+        else currentCatImage = '';
+      }
+    });
+    container.appendChild(div);
+  }
+
+  // Setup Image Inputs
+  handleImageUpload(document.getElementById('categoryImageInput'), document.getElementById('categoryImagePreview'), false, (base64) => {
+    currentCatImage = base64;
+  }, 'category');
+
+  handleImageUpload(document.getElementById('productImagesInput'), document.getElementById('productImagesPreview'), true, (base64) => {
+    currentProductImages.push(base64);
+  }, 'product');
+
+  handleImageUpload(document.getElementById('blogImageInput'), document.getElementById('blogImagePreview'), false, (base64) => {
+    currentBlogImage = base64;
+  }, 'blog');
+
+  // --- Category CRUD ---
+  document.getElementById('categoryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('categoryId').value;
+    const name = document.getElementById('categoryName').value;
+    
+    if (id) {
+      const index = categories.findIndex(c => c.id == id);
+      if (index > -1) {
+        categories[index].name = name;
+        if (currentCatImage) categories[index].image = currentCatImage;
+      }
+    } else {
+      categories.push({ id: Date.now(), name, image: currentCatImage });
+    }
+    
+    localStorage.setItem('categories', JSON.stringify(categories));
+    resetCategoryForm();
+    loadData();
+  });
+
+  function renderAdminCategories() {
+    const list = document.getElementById('categoryList');
+    list.innerHTML = '';
+    categories.forEach(cat => {
+      list.innerHTML += `
+        <div class="list-item glass">
+          <div class="list-item-info">
+            <img src="${cat.image || 'https://via.placeholder.com/60'}" alt="cat">
+            <span style="font-size: 1.1rem; font-weight: bold; color: var(--text-orange);">${cat.name}</span>
+          </div>
+          <div class="list-actions">
+            <button type="button" class="btn" onclick="editCategory(${cat.id})">Edit</button>
+            <button type="button" class="btn btn-danger" onclick="deleteCategory(${cat.id})">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  window.editCategory = function(id) {
+    const cat = categories.find(c => c.id == id);
+    if (!cat) return;
+    document.getElementById('categoryId').value = cat.id;
+    document.getElementById('categoryName').value = cat.name;
+    currentCatImage = cat.image || '';
+    const preview = document.getElementById('categoryImagePreview');
+    preview.innerHTML = '';
+    if (cat.image) renderPreview(cat.image, preview, false, 'category');
+    document.getElementById('categorySubmitBtn').innerText = 'Update Category';
+    document.getElementById('categoryCancelBtn').style.display = 'inline-block';
+    window.scrollTo(0, 0);
+  };
+
+  window.deleteCategory = function(id) {
+    categories = categories.filter(c => c.id != id);
+    products = products.filter(p => p.categoryId != id); // Cascade delete
+    localStorage.setItem('categories', JSON.stringify(categories));
+    localStorage.setItem('products', JSON.stringify(products));
+    loadData();
+  };
+
+  window.resetCategoryForm = function() {
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryId').value = '';
+    document.getElementById('categoryImagePreview').innerHTML = '';
+    currentCatImage = '';
+    document.getElementById('categorySubmitBtn').innerText = 'Add Category';
+    document.getElementById('categoryCancelBtn').style.display = 'none';
+  };
+
+  // --- Custom Dropdown ---
+  const selectWrapper = document.querySelector('.custom-select-wrapper');
+  const selectDisplay = document.getElementById('productCategorySelect');
+  const optionsContainer = document.getElementById('productCategoryOptions');
+  const hiddenInput = document.getElementById('productCategory');
+
+  selectDisplay.addEventListener('click', () => {
+    optionsContainer.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!selectWrapper.contains(e.target)) {
+      optionsContainer.classList.remove('open');
+    }
+  });
+
+  function updateCategoryDropdown() {
+    optionsContainer.innerHTML = '';
+    categories.forEach(cat => {
+      const opt = document.createElement('div');
+      opt.className = 'custom-option';
+      opt.innerText = cat.name;
+      opt.addEventListener('click', () => {
+        selectDisplay.innerText = cat.name;
+        hiddenInput.value = cat.id;
+        optionsContainer.classList.remove('open');
+      });
+      optionsContainer.appendChild(opt);
+    });
+    if (categories.length === 0) {
+      optionsContainer.innerHTML = '<div class="custom-option">No categories available</div>';
+    }
+  }
+
+  // --- Product CRUD ---
+  document.getElementById('productForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('productId').value;
+    const name = document.getElementById('productName').value;
+    const categoryId = document.getElementById('productCategory').value;
+    const price = document.getElementById('productPrice').value;
+    const oldPrice = document.getElementById('productOldPrice').value;
+    const description = document.getElementById('productDescription').value;
+    const seoTitle = document.getElementById('productSeoTitle').value;
+    const metaDesc = document.getElementById('productMetaDesc').value;
+    
+    if (!categoryId) {
+      alert('Please select a category from the dropdown.');
+      return;
+    }
+
+    if (id) {
+      const index = products.findIndex(p => p.id == id);
+      if (index > -1) {
+        products[index] = { ...products[index], name, categoryId, price, oldPrice, description, seoTitle, metaDesc, images: [...currentProductImages] };
+      }
+    } else {
+      products.push({ id: Date.now(), name, categoryId, price, oldPrice, description, seoTitle, metaDesc, images: [...currentProductImages] });
+    }
+    
+    localStorage.setItem('products', JSON.stringify(products));
+    resetProductForm();
+    loadData();
+  });
+
+  function renderAdminProducts() {
+    const list = document.getElementById('productList');
+    list.innerHTML = '';
+    products.forEach(prod => {
+      const catName = categories.find(c => c.id == prod.categoryId)?.name || 'Unknown';
+      const img = prod.images.length ? prod.images[0] : 'https://via.placeholder.com/60';
+      list.innerHTML += `
+        <div class="list-item glass">
+          <div class="list-item-info">
+            <img src="${img}" alt="prod">
+            <div>
+              <strong style="font-size: 1.1rem; color: var(--text-orange);">${prod.name}</strong><br>
+              <small style="color:#ddd">${catName} - $${prod.price}</small>
+            </div>
+          </div>
+          <div class="list-actions">
+            <button type="button" class="btn" onclick="editProduct(${prod.id})">Edit</button>
+            <button type="button" class="btn btn-danger" onclick="deleteProduct(${prod.id})">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  window.editProduct = function(id) {
+    const prod = products.find(p => p.id == id);
+    if (!prod) return;
+    document.getElementById('productId').value = prod.id;
+    document.getElementById('productName').value = prod.name;
+    document.getElementById('productPrice').value = prod.price;
+    document.getElementById('productOldPrice').value = prod.oldPrice || '';
+    document.getElementById('productDescription').value = prod.description || '';
+    document.getElementById('productSeoTitle').value = prod.seoTitle || '';
+    document.getElementById('productMetaDesc').value = prod.metaDesc || '';
+    document.getElementById('productCategory').value = prod.categoryId;
+    
+    const cat = categories.find(c => c.id == prod.categoryId);
+    document.getElementById('productCategorySelect').innerText = cat ? cat.name : 'Select Category';
+    
+    currentProductImages = [...(prod.images || [])];
+    const preview = document.getElementById('productImagesPreview');
+    preview.innerHTML = '';
+    currentProductImages.forEach(img => renderPreview(img, preview, true, 'product'));
+    
+    document.getElementById('productSubmitBtn').innerText = 'Update Product';
+    document.getElementById('productCancelBtn').style.display = 'inline-block';
+    window.scrollTo(0, 0);
+  };
+
+  window.deleteProduct = function(id) {
+    products = products.filter(p => p.id != id);
+    localStorage.setItem('products', JSON.stringify(products));
+    loadData();
+  };
+
+  window.resetProductForm = function() {
+    document.getElementById('productForm').reset();
+    document.getElementById('productId').value = '';
+    document.getElementById('productCategory').value = '';
+    document.getElementById('productOldPrice').value = '';
+    document.getElementById('productDescription').value = '';
+    document.getElementById('productSeoTitle').value = '';
+    document.getElementById('productMetaDesc').value = '';
+    document.getElementById('productCategorySelect').innerText = 'Select Category';
+    document.getElementById('productImagesPreview').innerHTML = '';
+    currentProductImages = [];
+    document.getElementById('productSubmitBtn').innerText = 'Add Product';
+    document.getElementById('productCancelBtn').style.display = 'none';
+  };
+
+  // --- Blog Logic ---
+  document.getElementById('blogForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('blogId').value;
+    const title = document.getElementById('blogTitle').value;
+    const content = document.getElementById('blogContent').value;
+    
+    if (id) {
+      const index = blogs.findIndex(b => b.id == id);
+      if (index > -1) {
+        blogs[index].title = title;
+        blogs[index].content = content;
+        if (currentBlogImage) blogs[index].image = currentBlogImage;
+      }
+    } else {
+      blogs.push({ id: Date.now(), title, content, image: currentBlogImage });
+    }
+    
+    localStorage.setItem('blogs', JSON.stringify(blogs));
+    resetBlogForm();
+    renderAdminBlogs();
+    loadData();
+  });
+
+  function renderAdminBlogs() {
+    const list = document.getElementById('blogList');
+    if (!list) return;
+    list.innerHTML = '';
+    blogs.forEach(blog => {
+      const imgHtml = blog.image ? `<img src="${blog.image}" alt="blog" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;">` : '';
+      list.innerHTML += `
+        <div class="list-item glass">
+          <div class="list-item-info">
+            ${imgHtml}
+            <div>
+              <strong style="font-size: 1.1rem; color: var(--text-orange);">${blog.title}</strong>
+            </div>
+          </div>
+          <div class="list-actions">
+            <button type="button" class="btn" onclick="editBlog(${blog.id})">Edit</button>
+            <button type="button" class="btn btn-danger" onclick="deleteBlog(${blog.id})">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  window.editBlog = function(id) {
+    const blog = blogs.find(b => b.id == id);
+    if (!blog) return;
+    document.getElementById('blogId').value = blog.id;
+    document.getElementById('blogTitle').value = blog.title;
+    document.getElementById('blogContent').value = blog.content;
+    
+    currentBlogImage = blog.image || '';
+    const preview = document.getElementById('blogImagePreview');
+    preview.innerHTML = '';
+    if (blog.image) renderPreview(blog.image, preview, false, 'blog');
+    
+    document.getElementById('blogSubmitBtn').innerText = 'Update Blog';
+    document.getElementById('blogCancelBtn').style.display = 'inline-block';
+    window.scrollTo(0, 0);
+  };
+
+  window.resetBlogForm = function() {
+    document.getElementById('blogForm').reset();
+    document.getElementById('blogId').value = '';
+    document.getElementById('blogImagePreview').innerHTML = '';
+    currentBlogImage = '';
+    document.getElementById('blogSubmitBtn').innerText = 'Add Blog';
+    document.getElementById('blogCancelBtn').style.display = 'none';
+  };
+
+  window.deleteBlog = function(id) {
+    blogs = blogs.filter(b => b.id != id);
+    localStorage.setItem('blogs', JSON.stringify(blogs));
+    renderAdminBlogs();
+    loadData();
+  };
+
+  // --- Blog Modal Logic ---
+  window.openBlogModal = function(id) {
+    const blog = blogs.find(b => b.id == id);
+    if (!blog) return;
+    document.getElementById('modalBlogTitle').innerText = blog.title;
+    document.getElementById('modalBlogContent').innerText = blog.content;
+    document.getElementById('blogModal').style.display = 'block';
+  };
+
+  window.closeBlogModal = function() {
+    document.getElementById('blogModal').style.display = 'none';
+  };
+
+  window.onclick = function(event) {
+    const blogModal = document.getElementById('blogModal');
+    const cartModal = document.getElementById('cartModal');
+    const prodModal = document.getElementById('productModal');
+    if (event.target == blogModal) blogModal.style.display = "none";
+    if (event.target == cartModal) cartModal.style.display = "none";
+    if (event.target == prodModal) prodModal.style.display = "none";
+  };
+
+  // --- Cart Logic ---
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+  function updateCartCount() {
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCountEl = document.getElementById('cartCount');
+    const cartCountBuyerEl = document.getElementById('cartCountBuyer');
+    if (cartCountEl) cartCountEl.innerText = count;
+    if (cartCountBuyerEl) cartCountBuyerEl.innerText = count;
+  }
+
+  window.addToCart = function(productId, event) {
+    const prod = products.find(p => p.id == productId);
+    if (!prod) return;
+    const existing = cart.find(item => item.id == productId);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ ...prod, quantity: 1 });
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+    
+    if (event && event.currentTarget) {
+      const btn = event.currentTarget;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="ph ph-check"></i> Added';
+      btn.style.background = '#25D366';
+      btn.style.color = '#fff';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 1500);
+    }
+  };
+
+  window.openCart = function() {
+    renderCart();
+    document.getElementById('cartModal').style.display = 'block';
+  };
+
+  window.closeCart = function() {
+    document.getElementById('cartModal').style.display = 'none';
+  };
+
+  function renderCart() {
+    const cartItemsContainer = document.getElementById('cartItems');
+    if (cart.length === 0) {
+      cartItemsContainer.innerHTML = '<p style="text-align:center; color:#ccc;">Your cart is empty.</p>';
+      document.getElementById('cartTotal').innerText = '$0';
+      return;
+    }
+
+    let total = 0;
+    cartItemsContainer.innerHTML = cart.map((item, index) => {
+      total += item.price * item.quantity;
+      const img = item.images && item.images.length > 0 ? item.images[0] : 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=500&auto=format&fit=crop';
+      return `
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px;">
+          <img src="${img}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+          <div style="flex: 1;">
+            <h4 style="color: var(--text-white); margin-bottom: 5px; font-size: 1rem;">${item.name}</h4>
+            <p style="color: var(--text-orange); margin: 0;">$${item.price}</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button class="btn" style="padding: 5px 10px; min-width: 30px;" onclick="updateCartQty(${index}, -1)">-</button>
+            <span style="color: #fff; width: 20px; text-align: center;">${item.quantity}</span>
+            <button class="btn" style="padding: 5px 10px; min-width: 30px;" onclick="updateCartQty(${index}, 1)">+</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('cartTotal').innerText = '$' + total;
+  }
+
+  window.updateCartQty = function(index, change) {
+    cart[index].quantity += change;
+    if (cart[index].quantity <= 0) {
+      cart.splice(index, 1);
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+    renderCart();
+  };
+
+  window.checkoutWhatsApp = function() {
+    if (cart.length === 0) return alert('Your cart is empty!');
+    let text = "Hello Royal Furniture! I would like to order:\n\n";
+    let total = 0;
+    cart.forEach(item => {
+      text += `- ${item.name} (x${item.quantity}) - $${item.price * item.quantity}\n`;
+      total += item.price * item.quantity;
+    });
+    text += `\n*Total: $${total}*`;
+    
+    const phone = "1234567890"; // Replace with actual WhatsApp number
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
+  // --- Product Modal Logic ---
+  window.openProductModal = function(id) {
+    const prod = products.find(p => p.id == id);
+    if (!prod) return;
+    
+    document.getElementById('modalProductName').innerText = prod.name;
+    const oldPriceHtml = prod.oldPrice ? `<span style="text-decoration: line-through; color: #888; font-size: 1.2rem; margin-right: 15px;">$${prod.oldPrice}</span>` : '';
+    document.getElementById('modalProductPrice').innerHTML = `${oldPriceHtml}$${prod.price}`;
+    document.getElementById('modalProductDesc').innerText = prod.description || 'No description available.';
+    
+    const mainImg = document.getElementById('modalProductImage');
+    const gallery = document.getElementById('modalProductGallery');
+    
+    if (prod.images && prod.images.length > 0) {
+      mainImg.src = prod.images[0];
+      gallery.innerHTML = prod.images.map(img => `
+        <img src="${img}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent;" onclick="document.getElementById('modalProductImage').src=this.src" onmouseover="this.style.borderColor='var(--text-orange)'" onmouseout="this.style.borderColor='transparent'">
+      `).join('');
+    } else {
+      mainImg.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=500&auto=format&fit=crop';
+      gallery.innerHTML = '';
+    }
+    
+    document.getElementById('modalAddToCartBtn').onclick = function(event) {
+      addToCart(prod.id, event);
+    };
+    
+    document.getElementById('productModal').style.display = 'block';
+  };
+
+  window.closeProductModal = function() {
+    document.getElementById('productModal').style.display = 'none';
+  };
+
+  // Initialize Cart Count
+  updateCartCount();
+
+  // --- Ripple Effect Logic ---
+  document.addEventListener('click', function(e) {
+    const target = e.target.closest('.btn, nav a, .role-btn, .nav-btn, .custom-option, .remove-img');
+    if (!target) return;
+
+    const circle = document.createElement('span');
+    const diameter = Math.max(target.clientWidth, target.clientHeight);
+    const radius = diameter / 2;
+
+    const rect = target.getBoundingClientRect();
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${e.clientX - rect.left - radius}px`;
+    circle.style.top = `${e.clientY - rect.top - radius}px`;
+    circle.classList.add('ripple');
+
+    const existingRipple = target.querySelector('.ripple');
+    if (existingRipple) {
+      existingRipple.remove();
+    }
+
+    target.appendChild(circle);
+
+    setTimeout(() => {
+      circle.remove();
+    }, 600);
+  });
+
+</script>
+</body>
+</html>
+
